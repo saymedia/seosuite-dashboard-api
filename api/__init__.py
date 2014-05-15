@@ -4,6 +4,7 @@ import subprocess
 from django.conf.urls import url
 from django.core.paginator import Paginator, InvalidPage
 from django.http import Http404
+from tastypie import fields
 from tastypie.resources import ModelResource
 from tastypie.authorization import Authorization
 from tastypie.authentication import Authentication
@@ -30,6 +31,7 @@ class UrlResource(ModelResource):
         ordering = [
             'timestamp',
         ]
+        excludes = ('body',)
 
     def prepend_urls(self):
         return [
@@ -125,9 +127,17 @@ SELECT c.id
 
 
 class LinkResource(ModelResource):
+    to_url = fields.ToOneField(UrlResource, 'to_url', full=True)
+    from_url = fields.ToOneField(UrlResource, 'from_url', full=True)
+
     class Meta:
         queryset = CrawlLinks.objects.all()
         resource_name = 'link'
         allowed_methods = ['get',]
         authorization = Authorization()
         authentication = Authentication()
+        filtering = {
+            'to_url': ALL,
+            'from_url': ALL,
+        }
+

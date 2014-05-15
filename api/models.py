@@ -7,13 +7,15 @@
 #
 # Also note: You'll have to insert the output of 'django-admin.py sqlcustom [appname]'
 # into your database.
+import unicodedata
+
 from django.db import models
 
 class CrawlLinks(models.Model):
     run_id = models.CharField(max_length=36)
     type = models.CharField(max_length=32, blank=True)
-    from_id = models.IntegerField()
-    to_id = models.IntegerField()
+    from_url = models.ForeignKey('CrawlUrls', related_name='from_links')
+    to_url = models.ForeignKey('CrawlUrls', related_name='to_links')
     link_text = models.CharField(max_length=1024, blank=True)
     alt_text = models.CharField(max_length=1024, blank=True)
     rel = models.CharField(max_length=1024, blank=True)
@@ -35,9 +37,9 @@ class CrawlUrls(models.Model):
     run_id = models.CharField(max_length=36)
     level = models.IntegerField()
     content_hash = models.CharField(max_length=64, blank=True)
-    address = models.CharField(max_length=2048)
+    address = models.TextField()
     domain = models.CharField(max_length=128, blank=True)
-    path = models.CharField(max_length=2048, blank=True)
+    path = models.TextField(blank=True)
     external = models.IntegerField()
     status_code = models.IntegerField(blank=True, null=True)
     status = models.CharField(max_length=255, blank=True)
@@ -73,4 +75,7 @@ class CrawlUrls(models.Model):
     class Meta:
         managed = False
         db_table = 'crawl_urls'
+
+    def __unicode__(self):
+        return unicodedata.normalize('NFKD', self.address).encode('ascii', 'ignore')
 
