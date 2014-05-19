@@ -27,6 +27,10 @@ class UrlResource(ModelResource):
             'run_id': ALL,
             'content_type': ALL,
             'status_code': ALL,
+            'lint_critical': ALL,
+            'lint_error': ALL,
+            'lint_warn': ALL,
+            'lint_info': ALL,
         }
         ordering = [
             'timestamp',
